@@ -9,11 +9,12 @@ router.get('/', (req, res) => {
     include: [
       Category,
       {
-        //tag
+        model: Tag,
+        through: ProductTag
       }
     ]
   })
-    .then(dbProductData => res.json(dbProductData))
+    .then(product => res.json(product))
     .catch(err => {
       console.log(err);
       res.status(500).json(err);
@@ -29,16 +30,17 @@ router.get('/:id', (req, res) => {
     include: [
       Category,
       {
-        //tag
+        model: Tag,
+        through: ProductTag
       }
     ]
   })
-  .then(dbProductData => {
-    if (!dbProductData) {
+  .then(product => {
+    if (!product) {
       res.status(404).json({ message: 'Sorry no product found with this ID.' })
       return;
     }
-    res.json(dbProductData)
+    res.json(product)
   })
   .catch(err => {
     console.log(err);
@@ -121,7 +123,22 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+  Product.destroy({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(product => {
+    if (!product) {
+      res.status(404).json({ message: 'Sorry unable to delete this product.' })
+      return;
+    }
+    res.json(product)
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 module.exports = router;
